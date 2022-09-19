@@ -49,8 +49,8 @@ class Main:
 			self.error.display_error("Too many arguments.")
 		else:
 			self.parsing.start_parsing(self.argument[1]) # a faire
-			self.solve.reducedForm()
-			self.draw.drawing_result()
+			# self.solve.reducedForm()
+			# self.draw.drawing_result()
 			
 
 
