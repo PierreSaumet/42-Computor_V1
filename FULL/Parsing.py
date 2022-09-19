@@ -40,39 +40,99 @@ class Parsing:
 				if argument[i] not in self.authorized_char:
 					self.error.display_error(" Non authorized character: " + argument[i])
 		
-		self.count_symbol(argument)
-		self.separate_data(argument)
-		# print("A = {}".format(self.A_part))
-		# print("B = {}".format(self.B_part))
+		self.check_equal(argument)
 		self.clean_data(self.A_part)
-		
-	def count_symbol(self, argument):
-		count_equal = 0
-		for i in range(len(argument)):
-			if argument[i] == '=':
-				count_equal += 1
-				if count_equal > 1:
-					self.error.display_error(" Too many equal signe: '='")
-		if count_equal == 0:
-			self.error.display_error(" You need an equation with '='")
-	
-	def separate_data(self, argument):
+
+	# Check if there is one '=' sign and split the data into two groups.	
+	def check_equal(self, argument):
+		if argument.count('=') > 1 or argument.count('=') == 0: # need to be change
+			self.error.display_error(" Too many or not enough equal sign: '='")
 		self.A_part = argument.split("=", 1)
 		self.B_part = self.A_part[1]
 		self.A_part = self.A_part[0]
 
-	def clean_data(self, argument):
-		# Check if second degree
-		second_data = ""
-		first_data = ""
-		constante = ""
-		for i in range(len(argument)):
-			if argument[i] == '^':
-				if argument[i + 1] == '2':
-					print("on a un x carre = argument = " + argument + " et i = {}".format(i))
-					self.get_second_x(argument, i)
-					# {}".format(self.get_second_x(argument, i)))
+	# Execute basic check, start with ... end with ...
+	def basic_check(self, data):
+		data = data.replace('x', 'X')
+		data = data.replace(' ', '')
+		if data[0] in '+^*':
+			self.error.display_error(" Cannot start with: " + data[0])
+		if data[len(data) - 1] in "+-*^":
+			self.error.display_error(" Cannot end with: " + data[len(data) - 1])
+		print("len de data = {}".format(len(data)))
+		for i in range(len(data)):
+			# print("i = {}".format(i))
+			if data[i] in "-+*.^" and i + 1 < len(data) and data[i + 1] in "-+*^.":
+				self.error.display_error(" After a '+/-/*/./^', cannot have: " + data[i + 1])
+			if data[i] == '^' and i + 1 < len(data) and  data[i + 1] not in "012":
+				self.error.display_error(" After a '^', cannot have: " + data[i + 1])
+			if data[i] == '*' and i + 1 < len(data) and data[i + 1] != 'X':
+				self.error.display_error(" After a '*' can only have 'x/X, not a: " + data[i + 1])
+			if data[i] == "X" and i + 1 < len(data)  and data[i + 1] not in "^+-":
+				self.error.display_error(" After a 'X' can only have '^' or '+/-', not a: " + data[i + 1])
+			if data[i] == '.' and i + 1 >= len(data):
+				self.error.display_error(" After a '.' it should have number.")
+		return data
 
+	def empty_number(self ,data):
+		# print("Dans empty number = " + data)
+
+		lst_data = data.split()
+		# print("lst_data = {}".format(lst_data))
+		for i in range(len(lst_data)):
+			# print("lst_data i = {}".format(lst_data[i]))
+			for y in range(len(lst_data[i])):
+				if y == 0 and lst_data[i][y] not in "+-":
+					if i > 0:
+						if lst_data[i-1][len(lst_data[i -1])- 1] not in "+-":
+							print("ERROR ?avec {0} car avant {1}".format(lst_data[i], lst_data[i-1]))
+							self.error.display_error(" Number should start with '+ or -'")
+
+
+		
+
+	def clean_data(self, data):
+		print("\nDans clean data: ...")
+		
+		# trouver si chiffes seuls ex 3 3 + 4x  == erreur
+		self.empty_number(data)
+
+		
+		print("Data = " + data)
+		new_str = self.basic_check(data)
+
+		print("new string 1 =-" + new_str + "-")
+
+		tmp = ""
+		equations = list()
+		for i in range(len(new_str)):
+			if new_str[i] in "+-":
+				print("TMP = " + tmp)
+				if len(tmp) > 0:
+					equations.append(tmp)
+				tmp = ''
+			tmp = tmp + new_str[i]
+		print(" fin TMP = " + tmp)
+		equations.append(tmp)
+		print("test equations = {}".format(equations))
+		exit()
+				
+
+	def check_second_degree(self, data, i):
+		print("Dans check Second Degree...")
+		print(data, i)
+		lengh_data = len(data)
+		print("alors longueur de data = {0} et i = {1}".format(lengh_data, i))
+		print("-{}-  data[i] = {}".format(data, data[i]))
+		if i + 2 > lengh_data:
+			self.error.display_error("Error with the second degree: " + data)
+		if i + 2 < lengh_data:
+			if data[i + 2] not in " +-=":
+				self.error.display_error(" Non authorized character after '^2', only -/+/ /=: " + data[i + 2])
+
+		print("\t GOOD")
+
+# 4x2 +3x +2x^2
 	
 	def get_second_x(self, argument, i):
 		length = len(argument)
@@ -80,7 +140,7 @@ class Parsing:
 		print("arg = " + argument)
 		if argument[i - 1] not in "xX":
 			self.error.display_error(" a '^' character is always after 'x' or 'X': " + argument[i - 1])
-		if argument[i + 1] not in "012":
+		if argument[i + 1] not in "012": # useless
 			self.error.display_error(" Non authorized character after '^', only 0/1/2: " + argument[i + 1])
 		if argument[i + 2] not in " +-=":
 			self.error.display_error(" Non authorized character after '^', only -/+/ /=: " + argument[i + 2])
@@ -95,19 +155,8 @@ class Parsing:
 	def clean_second_x(self, argument):
 		new_str = argument.replace('x', 'X')
 		print("transfor m= " + new_str)
-		x = new_str.find("X")
-		if new_str[x - 1] not in  ' *':
-			new_str = new_str[:x] + ' ' + new_str[x:]
+
 		print("transfor m= " + new_str)
-		
-		
-		// later
-		# x = new_str.find('*')
-		# if x != -1:
-		# 	if argument[x + 1] != ' ':
-		# 		new_str = new_str[:x] + ' ' + new_str[x:]
-		# 	# if argument[x - 1] != ' ':
-		# 	# 	new_str = new_str[:x] + ' ' + new_str[x:]
 		print("transfor m= " + new_str)
 
 		
