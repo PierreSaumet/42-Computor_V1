@@ -17,9 +17,7 @@
 	Python rocks.
 """
 
-from ast import arg
-from operator import length_hint
-from symbol import argument
+
 import Error
 
 
@@ -41,7 +39,100 @@ class Parsing:
 					self.error.display_error(" Non authorized character: " + argument[i])
 		
 		self.check_equal(argument)
-		self.clean_data(self.A_part)
+		
+		two_degree = list()
+		one_degree = list()
+		no_deg = list()
+		equations = self.clean_data(self.A_part)
+		# trier si second premier ou rien degree
+		for item in equations:
+			# print(item)s
+			if item.find("X^2") > 0:
+				# print("SECOND DEGREE = " + item)
+				two_degree.append(item)
+			elif item.find("X^1") > 0:
+				# print("X ^ 1")
+				one_degree.append(item)
+			elif item.find("X^0") > 0:
+				# print("X^ 0 donc 0")
+				# if item.find("*X") >0 :
+				# 	data = item.replace("X^0", "1")
+				# else:
+				# 	data = item.replace("X^0", "*1")
+				no_deg.append(item)
+			elif item.find("X") > 0:
+				# print("X")
+				one_degree.append(item)
+			else:
+				# print("autre ? = "+ item)
+				no_deg.append(item)
+		print("\n\n TOTAL LEN = {}".format(len(equations)))
+		print("second list = {0} et len = {1}".format(two_degree, len(two_degree)))
+		print("one_degree list = {0} et len = {1}".format(one_degree, len(one_degree)))
+		print("no_deg list = {0} et len = {1}".format(no_deg, len(no_deg)))
+
+		self.calculate_no_degree(no_deg)
+		self.calculate_one_degree(one_degree)
+	
+
+	def calculate_one_degree(self, data):
+		print("\n\ndata = {}".format(data))
+		new_data = list()
+		is_float = 0
+		for i in range(len(data)):
+			if data[i].find(".") > 0:
+				is_float += 1
+			if data[i].find("*") > 0:
+				new_data.append(data[i][:data[i].find("*")])
+			elif data[i].find("X") > 0:
+				new_data.append(data[i][:data[i].find("X")])
+			else:
+				new_data.append(data[i])
+		print("nwe data = {}".format(new_data))
+
+		# check if float
+		# print("float ? ", is_float)
+		if is_float > 0:
+			result = 0.0
+			for i in range(len(new_data)):
+				result += float(new_data[i])
+		else:
+			result = 0
+			for i in range(len(new_data)):
+				result += int(new_data[i])
+		print("RESULT = ", result)
+		new_str = str(result)
+		if result > 0:
+			new_str = "+ " + new_str + " * X"
+		print("FINAL = " + new_str)
+
+
+	def calculate_no_degree(self, data):
+		print("data = {}".format(data))
+		new_data = list()
+		is_float = 0
+		for i in range(len(data)):
+			if data[i].find(".") > 0:
+				is_float += 1
+			if data[i].find("X^0") > 0:
+				new_data.append(data[i][:data[i].find("X^0")])
+			else:
+				new_data.append(data[i])
+			# print("new data = {}".format(new_data))
+		
+		# check if float
+		print("float ? ", is_float)
+		if is_float > 0:
+			result = 0.0
+			for i in range(len(new_data)):
+				result += float(new_data[i])
+		else:
+			result = 0
+			for i in range(len(new_data)):
+				result += int(new_data[i])
+		print("RESULT = ", result)
+		new_str = str(result)
+			
 
 	# Check if there is one '=' sign and split the data into two groups.	
 	def check_equal(self, argument):
@@ -115,10 +206,11 @@ class Parsing:
 		print(" fin TMP = " + tmp)
 		equations.append(tmp)
 		print("test equations = {}".format(equations))
-		exit()
+		return equations
+		
 				
 
-	def check_second_degree(self, data, i):
+	def check_two_degreeree(self, data, i):
 		print("Dans check Second Degree...")
 		print(data, i)
 		lengh_data = len(data)
