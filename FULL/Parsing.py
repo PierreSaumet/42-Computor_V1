@@ -38,7 +38,7 @@ class Parsing:
 				if argument[i] not in self.authorized_char:
 					self.error.display_error(" Non authorized character: " + argument[i])
 		
-		self.check_equal(argument)
+		self.check_equal_symbole(argument)
 		
 		two_degree = list()
 		one_degree = list()
@@ -134,28 +134,47 @@ class Parsing:
 		new_str = str(result)
 			
 
-	# Check if there is one '=' sign and split the data into two groups.	
-	def check_equal(self, argument):
-		if argument.count('=') > 1 or argument.count('=') == 0: # need to be change
-			self.error.display_error(" Too many or not enough equal sign: '='")
-		self.A_part = argument.split("=", 1)
-		self.B_part = self.A_part[1]
-		self.A_part = self.A_part[0]
 
-	# Execute basic check, start with ... end with ...
+	"""
+		This function checks the number of '='.
+			If there is more than 1:
+				It display an error message.
+			Otherwise, it separate the equation in two part
+	"""
+	def check_equal_symbole(self, argument):
+		if argument.count('=') > 1:
+			self.error.display_error(" Too many or not enough equal sign: '='")
+		if argument.count('=') == 1:
+			self.A_part = argument.split("=", 1)
+			self.B_part = self.A_part[1]
+			self.A_part = self.A_part[0]
+		else:
+			self.A_part = argument
+			self.B_part = "0"
+
+
+	"""
+		This function checks several points:
+			-	It replaces all 'x' item by 'X'.
+			-	It replaces all spaces by nothing
+			-	Checks the beginning and the end if there is no wrong symbol
+			-	Checks all symbols and their corresponding values
+				Ex:
+					2..3 / 2. / 2X^^3  ==> wrong
+					Display an error.
+		Return the "data" if everything is Okay.
+	"""
 	def basic_check(self, data):
 		data = data.replace('x', 'X')
 		data = data.replace(' ', '')
-		if data[0] in '+^*':
+		if data[0] in '^*':
 			self.error.display_error(" Cannot start with: " + data[0])
 		if data[len(data) - 1] in "+-*^":
 			self.error.display_error(" Cannot end with: " + data[len(data) - 1])
-		print("len de data = {}".format(len(data)))
 		for i in range(len(data)):
-			# print("i = {}".format(i))
 			if data[i] in "-+*.^" and i + 1 < len(data) and data[i + 1] in "-+*^.":
 				self.error.display_error(" After a '+/-/*/./^', cannot have: " + data[i + 1])
-			if data[i] == '^' and i + 1 < len(data) and  data[i + 1] not in "012":
+			if data[i] == '^' and i + 1 < len(data) and  data[i + 1] not in "0123456789":
 				self.error.display_error(" After a '^', cannot have: " + data[i + 1])
 			if data[i] == '*' and i + 1 < len(data) and data[i + 1] != 'X':
 				self.error.display_error(" After a '*' can only have 'x/X, not a: " + data[i + 1])
@@ -165,13 +184,16 @@ class Parsing:
 				self.error.display_error(" After a '.' it should have number.")
 		return data
 
+	"""
+		This function splts "data" with spaces. Then, it checks that there
+		is no single number without a sign symbol like "+ or -".
+			Ex: 4x + 3  2 = 0  ==> Error, 2 is alone
+		It displays an error if there is a problem.
+		Othrewise return nothing
+	"""
 	def empty_number(self ,data):
-		# print("Dans empty number = " + data)
-
 		lst_data = data.split()
-		# print("lst_data = {}".format(lst_data))
 		for i in range(len(lst_data)):
-			# print("lst_data i = {}".format(lst_data[i]))
 			for y in range(len(lst_data[i])):
 				if y == 0 and lst_data[i][y] not in "+-":
 					if i > 0:
@@ -179,21 +201,14 @@ class Parsing:
 							print("ERROR ?avec {0} car avant {1}".format(lst_data[i], lst_data[i-1]))
 							self.error.display_error(" Number should start with '+ or -'")
 
-
-		
-
 	def clean_data(self, data):
 		print("\nDans clean data: ...")
 		
-		# trouver si chiffes seuls ex 3 3 + 4x  == erreur
 		self.empty_number(data)
-
-		
-		print("Data = " + data)
 		new_str = self.basic_check(data)
-
+				# exit()
 		print("new string 1 =-" + new_str + "-")
-
+		exit()
 		tmp = ""
 		equations = list()
 		for i in range(len(new_str)):
