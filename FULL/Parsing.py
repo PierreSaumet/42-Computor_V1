@@ -206,7 +206,6 @@ class Parsing:
 		
 		self.empty_number(data)
 		new_str = self.basic_check(data)
-				# exit()
 		print("new string 1 =-" + new_str + "-")
 		exit()
 		tmp = ""
