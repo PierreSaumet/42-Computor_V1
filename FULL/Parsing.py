@@ -40,10 +40,17 @@ class Parsing:
 		
 		self.check_equal_symbole(argument)
 		
+
 		two_degree = list()
 		one_degree = list()
 		no_deg = list()
 		equations = self.clean_data(self.A_part)
+
+
+
+		self.get_max_exp(equations)
+		exit()
+
 		# trier si second premier ou rien degree
 		for item in equations:
 			# print(item)s
@@ -74,6 +81,20 @@ class Parsing:
 		self.calculate_no_degree(no_deg)
 		self.calculate_one_degree(one_degree)
 	
+
+	def get_max_exp(self, data):
+		print("\n\nDans get max")
+		max_lst = list()
+		for i in range(len(data)):
+			if data[i].find("^") > 0:
+				max_lst.append(data[i][data[i].find("^") + 1:])
+		max_exp = 0
+		for item in max_lst:
+			if item.isdigit() == False:
+				self.error.display_error(" Non authorized character in the exponentiel, only number: "+ item)
+			if int(item) > max_exp:
+				max_exp = int(item)
+		print("MAX  = ", max_exp)
 
 	def calculate_one_degree(self, data):
 		print("\n\ndata = {}".format(data))
@@ -201,23 +222,24 @@ class Parsing:
 							print("ERROR ?avec {0} car avant {1}".format(lst_data[i], lst_data[i-1]))
 							self.error.display_error(" Number should start with '+ or -'")
 
+
+	"""
+		This funtion clean the data. It will use self.empty_number() and
+		self.basic_check() to checks if the data is good.
+		Then it will separate all data into a list and return it.
+	"""
 	def clean_data(self, data):
 		print("\nDans clean data: ...")
-		
 		self.empty_number(data)
 		new_str = self.basic_check(data)
-		print("new string 1 =-" + new_str + "-")
-		exit()
 		tmp = ""
 		equations = list()
 		for i in range(len(new_str)):
 			if new_str[i] in "+-":
-				print("TMP = " + tmp)
 				if len(tmp) > 0:
 					equations.append(tmp)
 				tmp = ''
 			tmp = tmp + new_str[i]
-		print(" fin TMP = " + tmp)
 		equations.append(tmp)
 		print("test equations = {}".format(equations))
 		return equations
